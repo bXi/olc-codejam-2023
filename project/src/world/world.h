@@ -183,7 +183,7 @@ private:
 
     //std::vector<Entity*> nonPlayerCollideEntities;
 
-       Color _backgroundColor = {66, 57, 58, 255};
+       Color _backgroundColor = BLACK;//{66, 57, 58, 255};
 
     LevelManager lm;
 

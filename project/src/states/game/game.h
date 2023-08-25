@@ -58,11 +58,6 @@ private:
 
 	float screenRatio;
 	
-
-
-    int widthMargin = 5, heightMargin = 5;
-	Texture2D currentLevelTexture;
-
 	LerpAnimator* roomTitleLerp = nullptr;
 
 

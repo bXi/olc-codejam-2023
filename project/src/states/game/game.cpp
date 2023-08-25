@@ -164,8 +164,8 @@ void GameState::draw()
 
 	BeginMode2D(camera);
 
-    widthMargin = 1.f + ((GetScreenWidth() / Configuration::tileWidth) / 2.f) / camera.zoom;
-    heightMargin = 1.f + ((GetScreenHeight() / Configuration::tileHeight) / 2.f) / camera.zoom;
+//    widthMargin = 1.f + ((GetScreenWidth() / Configuration::tileWidth) / 2.f) / camera.zoom;
+//    heightMargin = 1.f + ((GetScreenHeight() / Configuration::tileHeight) / 2.f) / camera.zoom;
 
 //    int leftMargin = std::max(static_cast<int>(camera.target.x) / Configuration::tileWidth - widthMargin, 0);
 //    int rightMargin = std::min(leftMargin + widthMargin * 2 + 1, tileData.width);

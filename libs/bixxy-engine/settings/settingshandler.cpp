@@ -64,7 +64,7 @@ void Settings::_saveSettings() const
 void Settings::_init()
 {
 
-	InitWindow(1280, 720, "Wizards & Lizards");
+	InitWindow(1280, 720, "OLC::CodeJam::2023");
 
 	BeginDrawing();
 	ClearBackground(BLACK);

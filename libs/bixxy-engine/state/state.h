@@ -69,6 +69,9 @@ private:
                 case State::gamestate::GAME:
                     state = new GameState;
                     break;
+                case State::gamestate::QUIT:
+                    //nothing
+                    break;
             }
 
             state->load();

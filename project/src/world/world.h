@@ -1,44 +1,45 @@
 #pragma once
 
 #include <vector>
-
-
 #include <audio/audiohandler.h>
-
 #include "map/levelmanager.h"
-
 #include "utils/vectors.h"
 #include "utils/lerp.h"
-
 #include "box2d/box2d.h"
-//#include "entities/entity.h"
-
 #include "entities/physicsobject.h"
-
 #include "flecs.h"
-
-
 #include "components/type.h"
 
+
+class Shape {
+public:
+    enum Type { UNDEFINED, TRIANGLE, RECTANGLE };
+
+    Type type;
+};
+
+class wRectangle : public Shape {
+public:
+    float x;
+    float y;
+    float width;
+    float height;
+};
+
+class wTriangle : public Shape {
+public:
+    vf2d first;
+    vf2d second;
+    vf2d third;
+};
 
 class World : public b2ContactListener {
 public:
 
-    static void init()
-    {
-        get()._init();
-    }
-
-    static void clear()
-    {
-        get()._clear();
-    }
-
-    static Color getBackgroundColor()
-    {
-        return get()._backgroundColor;
-    }
-
+    static void init() { get()._init(); }
+    static void clear() { get()._clear(); }
+    static Color getBackgroundColor() { return get()._backgroundColor; }
+    static float getLevelScale() { return get().levelScale; }
     static b2Body* createBody(const b2BodyDef* body)
     {
         return get().world.CreateBody(body);
@@ -52,6 +53,11 @@ public:
     static void removeObject(PhysicsObject* object)
     {
         get()._removeObject(object);
+    }
+
+    static void loadLevelPhysics(LevelData ld)
+    {
+        get()._loadLevelPhysics(ld);
     }
 
     static void clearObjects()
@@ -74,7 +80,6 @@ public:
         }
     }
 
-
     static void doStep(float timeStep, int velocityIterations, int positionIterations)
     {
         get().world.Step(timeStep, velocityIterations, positionIterations);
@@ -84,7 +89,6 @@ public:
     {
         return get().world;
     }
-
 
     static void draw()
     {
@@ -113,61 +117,10 @@ public:
         return filteredObjects;
     };
 
-    static Texture levelTexture()
-    {
-        return get().currentLevelTexture;
-    }
-
-    static LerpAnimator* getSlowMotionLerp()
-    {
-        return get().slowMotionLerp;
-    }
-
-    static float getSlowMotionTimer()
-    {
-        return get().slowMotionTimer;
-    }
-
-    static void setSlowMotionTimer(float newValue)
-    {
-        get().slowMotionTimer = newValue;
-    }
-
-    static float getPlaySlowMotionExit()
-    {
-        return get().playSlowMotionExit;
-    }
-
-    static void setPlaySlowMotionExit(bool newState)
-    {
-        get().playSlowMotionExit = newState;
-    }
-
-
-    // Implement the collision listener functions
-
     void BeginContact(b2Contact* contact) override;
-
     void EndContact(b2Contact* contact) override
     {
         get().handleCollision(contact, false);
-    }
-
-    static void startSlowMotion()
-    {
-        if (!get().slowMotionLerp->started) {
-            Audio::playSound("assets/sfx/slowmo-enter.wav");
-            get().playSlowMotionExit = true;
-            get().slowMotionTimer = 3.0f;
-            get().slowMotionLerp->started = true;
-            get().slowMotionLerp->time = 0;
-        }
-    }
-
-
-    static void generateNewMap()
-    {
-        get()._generateNewMap();
     }
 
     std::vector<PhysicsObject*> objects;
@@ -177,21 +130,14 @@ private:
     void _clear();
     void handleCollision(b2Contact* contact, bool beginCollision);
 
-    void _generateNewMap();
-
     void _removeObject(PhysicsObject* object);
+    void _loadLevelPhysics(LevelData ld);
 
-    //std::vector<Entity*> nonPlayerCollideEntities;
+    float levelScale = 2.f;
 
-       Color _backgroundColor = BLACK;//{66, 57, 58, 255};
+    Color _backgroundColor = BLACK;//{66, 57, 58, 255};
 
     LevelManager lm;
-
-    Texture currentLevelTexture;
-
-    LerpAnimator* slowMotionLerp = nullptr;
-    float slowMotionTimer = 0.0f;
-    bool playSlowMotionExit = false;
 
     b2Vec2 gravity = {0.0f, 0.0f};    // Y+ is down, so gravity is not negative
     b2World world = b2World(gravity);
@@ -203,10 +149,8 @@ private:
     World()
     {
         world.SetContactListener(this);
-
-        slowMotionLerp = Lerp::getLerp("SlowMoLerp", 1.0f, 2.0f, 0.5f);
-        slowMotionLerp->started = false;
     }
+
 };
 
 

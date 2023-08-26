@@ -2,10 +2,8 @@
 
 enum class ObjectType {
     UNDEFINED,
-    WALL,
-    FIREBALL,
-    ENEMY,
-    PLAYER,
+    RECTANGLE,
+    TRIANGLE
 };
 
 

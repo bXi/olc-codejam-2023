@@ -42,7 +42,7 @@ void UI::drawDebugInfo() {
             static_cast<float>(Log::getHeaderWidth() + Log::getLongestLineWidth() + (margin * 3)),
             static_cast<float>((lines.size() * 25) + (margin * 2) - 10)
     };
-    DrawRectangleRounded(backgroundRect, .1f, 32, {0, 0, 0, 127});
+    DrawRectangleRounded(backgroundRect, .1f, 32, {0, 0, 0, 160});
 
 
     for (const auto &line: lines) {

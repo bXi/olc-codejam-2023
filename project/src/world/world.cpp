@@ -7,38 +7,102 @@
 #include "components/rigidbody2d.h"
 #include "components/playerclass.h"
 
-//PhysicsWall::PhysicsWall(Vector2 pos, Vector2 size)
-//{
-//    type = ObjectType::WALL;
-//
-//    ShapeColor = { 255, 0, 0, 72 };
-//    Size = size;
-//    HalfSize.x = size.x / 2;
-//    HalfSize.y = size.y / 2;
-//
-//    b2BodyDef bodyDef;
-//    bodyDef.type = b2_staticBody;
-//    bodyDef.position.Set(pos.x, pos.y);
-//    bodyDef.angle = 0.0f;
-//    bodyDef.userData.pointer = 0;
-//    RigidBody = World::createBody(&bodyDef);
-//
-//    Box.SetAsBox(Size.x / 2, Size.y / 2);
-//
-//    b2FixtureDef fixtureDef;
-//    fixtureDef.shape = &Box;
-//    fixtureDef.density = 1.0f;
-//    fixtureDef.friction = 0.3f;
-//
-//    RigidBody->CreateFixture(&fixtureDef);
-//}
-
-void World::_init()
+void World::_loadLevelPhysics(LevelData ld)
 {
+    SetTraceLogLevel(LOG_INFO);
 
+    using json = nlohmann::json;
+
+
+    std::ifstream f("assets/tilesets/tileset.tsj");
+    json data = json::parse(f);
+
+    std::unordered_map<int, Shape*> uniqueShapes;
+
+    // read all unique shapes into our uniqueShapes map.
+    for (auto& tile : data["tiles"]) {
+        json jsonobject = tile["objectgroup"]["objects"][0];
+
+        int id = tile["id"];
+
+        if (jsonobject.contains("polygon")) { //assume triangle
+            auto* t = new wTriangle;
+
+            t->type = Shape::TRIANGLE;
+            t->first  = {jsonobject["polygon"][0]["x"], jsonobject["polygon"][0]["y"]};
+            t->second = {jsonobject["polygon"][1]["x"], jsonobject["polygon"][1]["y"]};
+            t->third  = {jsonobject["polygon"][2]["x"], jsonobject["polygon"][2]["y"]};
+
+            uniqueShapes[id] = t;
+        } else { //assume rectangle
+            auto* r = new wRectangle;
+
+            r->type = Shape::RECTANGLE;
+
+            r->x = jsonobject["x"];
+            r->y = jsonobject["y"];
+            r->width = jsonobject["width"];
+            r->height = jsonobject["height"];
+
+            uniqueShapes[id] = r;
+        }
+    }
+
+    for (int x = 0; x < ld.width; x++) {
+        for (int y = 0; y < ld.height; y++) {
+            int index = y * ld.width + x;
+
+            int tileId = ld.floorTiles.at(index);
+            if (tileId == 0) continue;
+
+            float offSetX = (float) x * ((float) Configuration::tileWidth / levelScale);
+            float offSetY = (float) y * ((float) Configuration::tileHeight / levelScale);
+
+            Shape* shape = uniqueShapes[tileId - 1];
+
+            if (shape->type == Shape::RECTANGLE) {
+
+                wRectangle* rect = (wRectangle*)shape;
+
+                PhysicsRectangle* r = new PhysicsRectangle();
+
+                r->ShapeColor = Color{230, 41, 55, 127};
+
+                r->Size.x = rect->width / levelScale;
+                r->Size.y = rect->height / levelScale;
+
+                r->HalfSize.x = (rect->width / 2) / levelScale;
+                r->HalfSize.y = (rect->height / 2) / levelScale;
+
+                b2BodyDef bodyDef;
+                bodyDef.type = b2_staticBody;
+                bodyDef.position.Set((offSetX + (rect->x / levelScale)) / ((float)Configuration::tileWidth / levelScale), (offSetY + (rect->y / levelScale))/ ((float)Configuration::tileWidth / levelScale));
+                bodyDef.angle = 0.0f;
+                bodyDef.userData.pointer = 0;
+                r->RigidBody = World::createBody(&bodyDef);
+
+                b2PolygonShape Box;
+                Box.SetAsBox((r->Size.x / 2) / levelScale, (r->Size.y / 2) / levelScale);
+
+                b2FixtureDef fixtureDef;
+                fixtureDef.shape = &Box;
+                fixtureDef.density = 1.0f;
+                fixtureDef.friction = 0.3f;
+
+                r->RigidBody->CreateFixture(&fixtureDef);
+
+                addObject(r);
+            }
+
+
+
+        }
+    }
+
+    SetTraceLogLevel(LOG_WARNING);
 }
 
-void World::_generateNewMap()
+void World::_init()
 {
 
 }
@@ -70,7 +134,6 @@ void World::_removeObject(PhysicsObject* object)
     }
 
 }
-
 
 void World::BeginContact(b2Contact* contact)
 {

@@ -38,6 +38,7 @@
         "project/src/ui/ui.h"
         "project/src/world/world.cpp"
         "project/src/world/world.h"
+        "project/src/entities/physicsobject.cpp"
 )
 
 set_target_properties("main" PROPERTIES

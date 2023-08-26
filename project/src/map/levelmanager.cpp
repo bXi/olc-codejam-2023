@@ -19,6 +19,8 @@ void LevelManager::loadLevel(const char *levelnumber) {
 
     LevelData newData;
 
+    newData.filename = filename;
+
     newData.width = data["width"];
     newData.height = data["height"];
 

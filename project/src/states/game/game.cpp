@@ -23,6 +23,22 @@ void GameState::setupControls() {
 void GameState::resetGame() {
     ECS::reset();
 
+    lm.loadLevel("01");
+    leveldata = lm.currentlevel;
+
+    cameraTargetArea = {
+        640.f,
+        180.f,
+        ((leveldata.width * Configuration::tileWidth) / 2.f) - (640.f * 2.f),
+        200.f,
+    };
+
+    World::loadLevelPhysics(leveldata);
+
+
+//    CreatePlayerEntity(1, )
+
+
 
     setupControls();
 
@@ -67,18 +83,11 @@ void GameState::load() {
     camera.rotation = 0.0f;
     camera.zoom = 1.0f;
 
+    camTarget = {640.f, 380.f};
+
     resetGame();
 
-    lm.loadLevel("01");
-    leveldata = lm.currentlevel;
 
-    camTarget = {640.f, 380.f};
-    cameraTargetArea = {
-            640.f,
-            180.f,
-            ((leveldata.width * Configuration::tileWidth) / 2.f) - (640.f * 2.f),
-            200.f,
-    };
 }
 
 void GameState::unload() {}
@@ -161,23 +170,20 @@ void GameState::draw() {
 
     BeginMode2D(camera);
 
-
     for (int x = 0; x < leveldata.width; x++) {
         for (int y = 0; y < leveldata.height; y++) {
             int index = y * leveldata.width + x;
 
             Rectangle dest = {
-                    (float) x * ((float) Configuration::tileWidth / levelScale),
-                    (float) y * ((float) Configuration::tileHeight / levelScale),
-                    128.f / levelScale,
-                    128.f / levelScale,
+                    (float) x * ((float) Configuration::tileWidth / World::getLevelScale()),
+                    (float) y * ((float) Configuration::tileHeight / World::getLevelScale()),
+                    128.f / World::getLevelScale(),
+                    128.f / World::getLevelScale(),
 
             };
 
             DrawTexturePro(tilemap, getTile(leveldata.floorTiles.at(index) - 1), dest, {0.f, 0.f}, 0.f, WHITE);
             DrawTexturePro(tilemap, getTile(leveldata.decorTiles.at(index) - 1), dest, {0.f, 0.f}, 0.f, WHITE);
-
-
         }
     }
 
@@ -272,6 +278,9 @@ void GameState::handleInput() {
 void GameState::drawUI() {
     // UI
     if (Configuration::showGameStats) {
+        vf2d mousePos = GetScreenToWorld2D(GetMousePosition(), camera);
+        mousePos /= (Configuration::tileWidth / World::getLevelScale());
+        Log::addLine("Mousepos", mousePos.str());
         UI::drawDebugInfo();
     }
     Log::resetLog();

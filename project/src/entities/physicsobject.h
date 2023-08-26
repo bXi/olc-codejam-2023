@@ -17,3 +17,21 @@ public:
 
     virtual ~PhysicsObject() = default;
 };
+
+class PhysicsRectangle : public PhysicsObject
+{
+public:
+    Vector2 Size = { 0,0 };
+    Vector2 HalfSize = { 0,0 };
+    void draw() override;
+    ObjectType type = ObjectType::RECTANGLE;
+};
+
+class PhysicsTriangle : public PhysicsObject
+{
+public:
+    void draw() override {
+
+    };
+    ObjectType type = ObjectType::TRIANGLE;
+};

@@ -13,6 +13,9 @@
 
 struct LevelData
 {
+
+    const char* filename;
+
     int height;
     int width;
 

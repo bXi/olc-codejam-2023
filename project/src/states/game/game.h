@@ -52,7 +52,6 @@ private:
     Rectangle cameraTargetArea;
     vf2d camTarget;
 
-    float levelScale = 2.f;
 	LevelManager lm;
     LevelData leveldata;
 

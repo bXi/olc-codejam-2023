@@ -52,20 +52,21 @@ void GameState::resetGame()
 
 void GameState::load()
 {
-    dungeonTileset = LoadTextureFromImage(LoadImage("assets/tilesets/dungeon.png"));
-
     Fonts::getFont("assets/fonts/APL386.ttf", 20);
 
-    Audio::getMusic("assets/music/boss-1-loop.wav");
-    Audio::getSound("assets/sfx/slowmo-enter.wav");
-    Audio::getSound("assets/sfx/slowmo-exit.wav");
+    tilemap = Textures::getTexture("assets/tilesets/tiles.png");
+    bg[0] = Textures::getTexture("assets/bg/bg0.png");
+    bg[1] = Textures::getTexture("assets/bg/bg1.png");
+    bg[2] = Textures::getTexture("assets/bg/bg2.png");
+
+    for (int i = 0; i < 3; ++i) {
+        positions[i] = (Vector2){ 0.f, -(2.f - (float)i) * 65.f };
+    }
 
 
 	screenWidth = static_cast<float>(GetScreenWidth());
 	screenHeight = static_cast<float>(GetScreenHeight());
 	screenRatio = screenWidth / screenHeight;
-
-	World::generateNewMap();
 
 	camera.offset = { static_cast<float>(GetScreenWidth()) / 2.0f, static_cast<float>(GetScreenHeight()) / 2.0f };
 	camera.rotation = 0.0f;
@@ -73,9 +74,6 @@ void GameState::load()
 
 	resetGame();
 
-	roomTitleLerp = Lerp::getLerp("roomTitleLerp", 0.0f, 10.0f, 4.0f);
-
-	isLoaded = true;
 
 }
 
@@ -84,7 +82,6 @@ void GameState::unload()
 
 void GameState::draw()
 {
-	if (!isLoaded) load();
 
 	ClearBackground(World::getBackgroundColor());
 
@@ -100,11 +97,6 @@ void GameState::draw()
 
 		input->doMovement(&entity);
 		input->doShoot(entity, &camera);
-
-		if (IsKeyPressed(KEY_F2)) input->weaponUpgrades[input->selectedWeapon - 1]++;
-		if (IsKeyPressed(KEY_F3)) input->weaponUpgrades[input->selectedWeapon - 1] += 10;
-		if (IsKeyPressed(KEY_F4)) input->weaponUpgrades[input->selectedWeapon - 1] += 100;
-
 
 		playerClass->update();
 
@@ -122,19 +114,6 @@ void GameState::draw()
     vf2d averagePlayerPos = { (camPos.x / static_cast<float>(playerFilter.count())), // * static_cast<float>(Configuration::tileWidth),
                               (camPos.y / static_cast<float>(playerFilter.count())) // * static_cast<float>(Configuration::tileHeight)
                        };
-
-
-	if (World::getSlowMotionTimer() <= 0.0f) {
-		Configuration::slowMotionFactor = 1.0f;
-	}
-
-	if (World::getSlowMotionTimer() <= 1.1f)
-	{
-		if (World::getPlaySlowMotionExit()) {
-			Audio::playSound("assets/sfx/slowmo-exit.wav");
-			World::setPlaySlowMotionExit(false);
-		}
-	}
 
 	handleInput();
 	update();
@@ -161,6 +140,22 @@ void GameState::draw()
 		accumulator -= physTime;
 		World::doStep(physTime, velocityIterations, positionIterations);
 	}
+
+
+     for (int i = 0; i < 3; ++i) {
+
+        positions[i].x -= speeds[i] * speedFactor;
+
+        if (positions[i].x <= -((bg[i].width / 3) + 200.f))
+        {
+            positions[i].x += (bg[i].width / 3);
+        }
+
+     }
+
+     for (int i = 0; i < 3; ++i) {
+         DrawTextureEx(bg[i], positions[i], 0.0f, 1.f, WHITE);
+     }
 
 	BeginMode2D(camera);
 
@@ -279,65 +274,22 @@ void GameState::update()
 void GameState::handleInput()
 {
 	//only for global input
-	if (IsKeyPressed(KEY_LEFT_BRACKET)) {
-		camera.zoom = camera.zoom / 2.0f;
-		if (camera.zoom < 0.5f) {
-			camera.zoom = 0.5f;
-		}
-	}
 
-	if (IsKeyPressed(KEY_RIGHT_BRACKET)) {
-		camera.zoom = camera.zoom * 2.0f;
-	}
 
-	if (IsKeyPressed(KEY_M))
-	{
-		miniMapVisible = !miniMapVisible;
-	}
-
-	if (IsKeyPressed(KEY_F1)) {
-		/*if (players.size() == 1) {
-			players.emplace_back(new Wizard());
-
-			players[1]->pos = players[0]->pos + vf2d({ 2.5f, 0.5f });
-			players[1]->load();
-
-			World::addObject(players[1]);
-
-			setupControls();
-		}*/
-	}
 }
 
 void GameState::drawUI()
 {
 	// UI
-	int playerId = 1;
-	const auto playerFilter = ECS::getWorld().filter<PlayerIndex>();
-	playerFilter.each([&](flecs::entity entity, PlayerIndex index) {
-        //UI::drawPlayerBar(entity, camera);
-	});
-
-
-
-
-
 	if (Configuration::showGameStats) {
-
         UI::drawDebugInfo();
-
-
-
-
 	}
     Log::resetLog();
 
-	if (IsKeyPressed(KEY_F10)) {
-		
+	if (IsKeyPressed(KEY_N)) {
 
 
-		World::clearObjects();
-		World::generateNewMap();
+
 
 		resetGame();
 

@@ -2,7 +2,6 @@
         "project/resource/main.rc"
         "project/resource/mainIcon.ico"
         "project/resource/resource.h"
-        "project/assets/shaders/magicmissile.glsl"
         "project/src/components/aicontroller.h"
         "project/src/components/collision.h"
         "project/src/components/damage.h"

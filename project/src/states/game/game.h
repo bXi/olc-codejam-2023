@@ -24,9 +24,6 @@
 #include "map/levelmanager.h"
 #include "state/basestate.h"
 
-//#define ENABLE_SHADERS 1
-
-
 inline auto doCirclesOverlap = [](float x1, float y1, float r1, float x2, float y2, float r2)
 {
 	return fabs((x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2)) <= (r1 + r2) * (r1 + r2);
@@ -40,16 +37,10 @@ private:
 	int32 velocityIterations = 6;
 	int32 positionIterations = 2;
 
-	bool isLoaded = false;
-
-
 	Camera2D camera = {0};
 
 	Music backgroundMusic;
 
-
-	bool startedGameplay = false;
-	bool miniMapVisible = false;
 
 	float speed = 10.0f;
 
@@ -57,14 +48,18 @@ private:
 	float screenHeight;
 
 	float screenRatio;
-	
-	LerpAnimator* roomTitleLerp = nullptr;
 
 
 	LevelManager lm;
 
 
+    Vector2 positions[3];
+    float speeds[3] = { .1f, .2f, .4f };
+    float speedFactor = 2.f;
+    int updateFrame = 0;
 
+    Texture2D tilemap;
+    Texture2D bg[3];
 
 public:
 	void load() override;
@@ -80,8 +75,6 @@ public:
 	void handleInput();
 	void update();
 	void drawEntities();
-
-    Texture dungeonTileset;
 
     Rectangle getRectangle(int _x, int _y)
 	{

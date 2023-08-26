@@ -1,0 +1,27 @@
+{
+    "Map/SizeTest": {
+        "height": 4300,
+        "width": 2
+    },
+    "activeFile": "",
+    "expandedProjectPaths": [
+    ],
+    "fileStates": {
+    },
+    "last.imagePath": "C:/Dev/cpp/gamejam/project/assets/tilesets",
+    "map.height": 12,
+    "map.lastUsedFormat": "json",
+    "map.tileHeight": 128,
+    "map.tileWidth": 128,
+    "map.width": 32,
+    "openFiles": [
+    ],
+    "project": "levels.tiled-project",
+    "recentFiles": [
+    ],
+    "tileset.lastUsedFormat": "json",
+    "tileset.tileSize": {
+        "height": 128,
+        "width": 128
+    }
+}

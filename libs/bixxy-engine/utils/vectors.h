@@ -2,8 +2,9 @@
 
 #include <cstdint>
 #include <cmath>
-
+#include <string>
 #include <algorithm>
+#include <sstream>
 
 #include "box2d/box2d.h"
 
@@ -24,7 +25,7 @@ struct v2d_generic
 	v2d_generic  perp() const { return v2d_generic(-y, x); }
 	v2d_generic  floor() const { return v2d_generic(std::floor(x), std::floor(y)); }
 	v2d_generic  ceil() const { return v2d_generic(std::ceil(x), std::ceil(y)); }
-	//Vector2 asVector2() const { return Vector2(x, y); }
+	v2d_generic  clamp(Rectangle target) const { return v2d_generic(std::clamp(x, target.x, target.x + target.width), std::clamp(y, target.y, target.y + target.height)); }
 	operator Vector2() { return Vector2(static_cast<float>(x), static_cast<float>(y)); }
 	operator b2Vec2() { return b2Vec2(x, y); }
 
@@ -58,6 +59,9 @@ struct v2d_generic
 	v2d_generic  operator -  () const { return { -x, -y }; }
 	bool operator == (const v2d_generic& rhs) const { return (this->x == rhs.x && this->y == rhs.y); }
 	bool operator != (const v2d_generic& rhs) const { return (this->x != rhs.x || this->y != rhs.y); }
+    const std::string str() const { return std::string("(") + TextFormat("%.2f", this->x) + "," + TextFormat("%.2f", this->y) + ")"; }
+    const char* c_str() const { return str().c_str(); }
+    friend std::ostream& operator << (std::ostream& os, const v2d_generic& rhs) { os << rhs.str(); return os; }
 	operator v2d_generic<int32_t>() const { return { static_cast<int32_t>(this->x), static_cast<int32_t>(this->y) }; }
 	operator v2d_generic<float>() const { return { static_cast<float>(this->x), static_cast<float>(this->y) }; }
 	operator v2d_generic<double>() const { return { static_cast<double>(this->x), static_cast<double>(this->y) }; }

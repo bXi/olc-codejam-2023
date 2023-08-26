@@ -36,6 +36,8 @@ endif ()
 add_subdirectory(libs/raylib)
 add_subdirectory(libs/flecs)
 
+add_subdirectory(libs/json)
+
 add_subdirectory(libs/bixxy-engine)
 
 set(BOX2D_BUILD_TESTBED OFF)

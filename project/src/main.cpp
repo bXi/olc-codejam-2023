@@ -2,11 +2,13 @@
 
 int main(int argc, char* argv[])
 {
-	State::init();
+    SetTraceLogLevel(LOG_WARNING);
+
+    State::init();
 	Settings::init();
 	Input::init();
 
-	SetTraceLogLevel(LOG_WARNING);
+
 
 	const Image windowIcon = LoadImage("assets/raylib_512x512.png");
 

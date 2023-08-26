@@ -49,9 +49,12 @@ private:
 
 	float screenRatio;
 
+    Rectangle cameraTargetArea;
+    vf2d camTarget;
 
+    float levelScale = 2.f;
 	LevelManager lm;
-
+    LevelData leveldata;
 
     Vector2 positions[3];
     float speeds[3] = { .1f, .2f, .4f };

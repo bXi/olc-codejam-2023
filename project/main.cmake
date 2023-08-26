@@ -128,12 +128,14 @@ target_include_directories("main" PRIVATE
         ${PROJECT_SOURCE_DIR} "libs/flecs/include"
         ${PROJECT_SOURCE_DIR} "libs/raylib/src/external/glfw/include"
         ${PROJECT_SOURCE_DIR} "libs/box2d/include"
+        ${PROJECT_SOURCE_DIR} "libs/box2d/include"
 )
 
 target_link_libraries("main"
         "raylib"
         "box2d"
         "bixxy-engine"
+        nlohmann_json::nlohmann_json
 )
 if (WIN32)
     target_link_libraries("main"

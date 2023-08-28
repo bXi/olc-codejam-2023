@@ -241,16 +241,16 @@ void GameState::drawEntities() {
 
     std::vector<flecs::entity> entitiesHealth;
 
-    const auto healthFilter = ECS::getWorld().filter<Health>();
-    healthFilter.each([&](flecs::entity entity, Health health) {
-
-        health.draw(entity);
-
-        if (health.currentHealth <= 0.0f) {
-            entitiesHealth.push_back(entity);
-
-        }
-    });
+//    const auto healthFilter = ECS::getWorld().filter<Health>();
+//    healthFilter.each([&](flecs::entity entity, Health health) {
+//
+//        health.draw(entity);
+//
+//        if (health.currentHealth <= 0.0f) {
+//            entitiesHealth.push_back(entity);
+//
+//        }
+//    });
 
     for (auto entity: entitiesHealth) {
         entity.set<DeleteMe>({});

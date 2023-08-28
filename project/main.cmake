@@ -21,8 +21,6 @@
         "project/src/ecs.h"
         "project/src/entities/fireball.cpp"
         "project/src/entities/fireball.h"
-        "project/src/entities/lizard.cpp"
-        "project/src/entities/lizard.h"
         "project/src/entities/physicsobject.h"
         "project/src/entities/player.cpp"
         "project/src/entities/player.h"

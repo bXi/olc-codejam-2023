@@ -13,12 +13,13 @@
 #include <fonts/fonthandler.h>
 #include <log/loghandler.h>
 
+#include "ui/ui.h"
+
 
 //#include "entities/powerup.h"
 
 
 #include "entities/player.h"
-#include "entities/lizard.h"
 
 #include "world/world.h"
 #include "map/levelmanager.h"

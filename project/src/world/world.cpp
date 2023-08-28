@@ -9,7 +9,6 @@
 
 void World::_loadLevelPhysics(LevelData ld)
 {
-    SetTraceLogLevel(LOG_INFO);
 
     using json = nlohmann::json;
 
@@ -55,8 +54,8 @@ void World::_loadLevelPhysics(LevelData ld)
             int tileId = ld.floorTiles.at(index);
             if (tileId == 0) continue;
 
-            float offSetX = (float) x * ((float) Configuration::tileWidth / levelScale);
-            float offSetY = (float) y * ((float) Configuration::tileHeight / levelScale);
+            float offSetX = (float) x;
+            float offSetY = (float) y;
 
             Shape* shape = uniqueShapes[tileId - 1];
 
@@ -68,23 +67,34 @@ void World::_loadLevelPhysics(LevelData ld)
 
                 r->ShapeColor = Color{230, 41, 55, 127};
 
-                r->Size.x = rect->width / levelScale;
-                r->Size.y = rect->height / levelScale;
+                r->Size.x = rect->width / (256.f / levelScale);
+                r->Size.y = rect->height / (256.f / levelScale);
 
-                r->HalfSize.x = (rect->width / 2) / levelScale;
-                r->HalfSize.y = (rect->height / 2) / levelScale;
+                r->HalfSize.x = (r->Size.x / 2);
+                r->HalfSize.y = (r->Size.y / 2);
 
                 b2BodyDef bodyDef;
                 bodyDef.type = b2_staticBody;
-                bodyDef.position.Set((offSetX + (rect->x / levelScale)) / ((float)Configuration::tileWidth / levelScale), (offSetY + (rect->y / levelScale))/ ((float)Configuration::tileWidth / levelScale));
+                bodyDef.position.Set(
+                        (offSetX - 0.5f) + (rect->x / (128.f)),
+                        (offSetY - 0.5f) + (rect->y / (128.f))
+                );
                 bodyDef.angle = 0.0f;
                 bodyDef.userData.pointer = 0;
                 r->RigidBody = World::createBody(&bodyDef);
 
                 b2PolygonShape Box;
-                Box.SetAsBox((r->Size.x / 2) / levelScale, (r->Size.y / 2) / levelScale);
+
+                b2Vec2 center = {
+                    (r->HalfSize.x),
+                    (r->HalfSize.y)
+                };
+
+                Box.SetAsBox(r->HalfSize.x, r->HalfSize.y, center, 0.f);
+
 
                 b2FixtureDef fixtureDef;
+
                 fixtureDef.shape = &Box;
                 fixtureDef.density = 1.0f;
                 fixtureDef.friction = 0.3f;
@@ -98,8 +108,6 @@ void World::_loadLevelPhysics(LevelData ld)
 
         }
     }
-
-    SetTraceLogLevel(LOG_WARNING);
 }
 
 void World::_init()
@@ -152,19 +160,20 @@ void World::BeginContact(b2Contact* contact)
 
     if (userDataA && !userDataB) {
         flecs::entity entityA = ECS::getWorld().entity(userDataA->entity_id);
-        if (entityA.has<FireballEntity>() && bodyB->GetType() == b2_staticBody) {
-            entityA.set<DeleteMe>({});
+
+        if (entityA.has<PlayerInput>()) {
+            entityA.get_mut<PlayerInput>()->isJumping = false;
         }
+
+
     }
     else if (!userDataA && userDataB) {
         flecs::entity entityB = ECS::getWorld().entity(userDataB->entity_id);
 
-        if (
-            entityB.has<FireballEntity>() &&
-            bodyA->GetType() == b2_staticBody)
-        {
-            entityB.set<DeleteMe>({});
+        if (entityB.has<PlayerInput>()) {
+            entityB.get_mut<PlayerInput>()->isJumping = false;
         }
+
     }
     else if (userDataA && userDataB) {
         flecs::entity entityA = ECS::getWorld().entity(userDataA->entity_id);

@@ -139,7 +139,8 @@ private:
 
     LevelManager lm;
 
-    b2Vec2 gravity = {0.0f, 0.0f};    // Y+ is down, so gravity is not negative
+    b2Vec2 gravity = {0.0f, 15.8f};    // Y+ is down, so gravity is not negative
+    //b2Vec2 gravity = {0.0f, 0.0f};    // Y+ is down, so gravity is not negative
     b2World world = b2World(gravity);
 public:
     World(const World&) = delete;

@@ -6,7 +6,7 @@ void CreatePlayerEntity(int index, vf2d pos) {
 
 	const auto& ecs = ECS::getWorld();
 
-	Texture2D sprite = Textures::getTexture("assets/entities/entities.png");
+	Texture2D sprite = Textures::getTexture("assets/players/idle.png");
 
 	flecs::entity entity;
 	// Create the player entity
@@ -17,7 +17,7 @@ void CreatePlayerEntity(int index, vf2d pos) {
 		.set<PlayerIndex>({ index })
 		.set<PlayerInput>({  })
 		.set<PlayerClass>({  })
-		.set<Sprite>({ 32.f, 56.f, sprite, true, true, 16.f, 40.f, direction::WEST })
+		.set<Sprite>({ 225.f, 376.f, sprite, true, false, 112.5f, 376.f, direction::EAST, 12, 1 })
 		.set<Render2D>({})
 		.emplace<Collision>(CATEGORY_FIREBALL, MASK_FIREBALL);
 		
@@ -36,16 +36,21 @@ void CreatePlayerEntity(int index, vf2d pos) {
 
 	b2BodyDef bodyDef;
 	bodyDef.type = b2_dynamicBody;
+    bodyDef.fixedRotation = true;
+
 	bodyDef.position.Set(pos.x, pos.y);
 	bodyDef.userData.pointer = reinterpret_cast<uintptr_t>(userData.get());
 	RigidBody = World::createBody(&bodyDef);
 
 	b2FixtureDef fixtureDef;
 	fixtureDef.shape = &CircleShape;
-	fixtureDef.density = 1.0f;
-	fixtureDef.friction = 0.3f;
+
+	fixtureDef.density = 1.f;
+	fixtureDef.friction = 0.6f;
 	RigidBody->CreateFixture(&fixtureDef);
-	
+
+
+
 	entity.emplace<RigidBody2D>(RigidBody);
 
 
@@ -53,7 +58,9 @@ void CreatePlayerEntity(int index, vf2d pos) {
 
 	entity.get_mut<PlayerClass>()->init();
 	entity.get_mut<Collision>()->init(&entity);
+    entity.get_mut<Render2D>()->init(entity);
 
     entity.get_mut<PlayerInput>()->init(index);
-	
+
+
 }

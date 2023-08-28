@@ -7,7 +7,6 @@ LevelManager::LevelManager()
 }
 
 void LevelManager::loadLevel(const char *levelnumber) {
-    SetTraceLogLevel(LOG_INFO);
 
     using json = nlohmann::json;
 
@@ -41,7 +40,6 @@ void LevelManager::loadLevel(const char *levelnumber) {
 
 
     }
-    SetTraceLogLevel(LOG_WARNING);
 
     currentlevel = newData;
 

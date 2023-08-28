@@ -34,7 +34,7 @@ class GameState : public BaseState {
 private:
 
 	float accumulator = 0;
-	float physTime = 1.f / static_cast<float>(Settings::getMonitorRefreshRate() * 2);
+	float physTime = 1.f / static_cast<float>(Settings::getMonitorRefreshRate());
 	int32 velocityIterations = 6;
 	int32 positionIterations = 2;
 
@@ -63,6 +63,10 @@ private:
 
     Texture2D tilemap;
     Texture2D bg[3];
+
+
+    //debug
+    bool renderPhysics = false;
 
 public:
 	void load() override;

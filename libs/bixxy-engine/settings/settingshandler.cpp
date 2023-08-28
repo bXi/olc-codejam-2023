@@ -35,7 +35,7 @@ bool Settings::_getVsync() const
 int Settings::_getMonitorRefreshRate() const
 {
     #if defined(EMSCRIPTEN)
-        return 120;
+        return 60;
     #endif
 	GLFWmonitor* primary = glfwGetPrimaryMonitor();
 	const GLFWvidmode* mode = glfwGetVideoMode(primary);
@@ -141,8 +141,6 @@ int Settings::gcd(const int a, const int b)
 
 std::vector<std::pair<int, int>> Settings::_resolutions()
 {
-
-
 	auto isResolutionRatio = [](const int width, const int height, int rWidth, int rHeight)
 	{
 		const int a = width / gcd(width, height);

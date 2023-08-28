@@ -2,7 +2,6 @@
 
 int main(int argc, char* argv[])
 {
-    SetTraceLogLevel(LOG_WARNING);
 
     State::init();
 	Settings::init();

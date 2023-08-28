@@ -17,21 +17,13 @@ struct PlayerInput
 	bool shooting = false;
 	bool isRunning = false;
 
-	int weaponUpgrades[4] = { 0,0,0,0 };
+    bool isJumping = false;
+    bool startJumping = false;
 
-    LerpAnimator* weaponSelectLerp = nullptr;
-    LerpAnimator* weaponSelectVisibleLerp = nullptr;
-    bool moveWeaponLeft = false;
+	int weaponUpgrades[4] = { 0,0,0,0 };
 
     void init(int index)
     {
-        weaponSelectLerp = Lerp::getLerp(TextFormat("weaponSelectLerpP%d", index), 0.0f, 1.0f, 0.4f);
-        weaponSelectLerp->callback = EaseSineInOut;
-        weaponSelectLerp->started = false;
-
-        weaponSelectVisibleLerp = Lerp::getLerp(TextFormat("weaponSelectVisibleLerpP%d", index), 0.0f, 4.0f, 2.f);
-        weaponSelectVisibleLerp->callback = EaseQuadIn;
-        weaponSelectVisibleLerp->started = false;
 
     }
 
@@ -44,32 +36,20 @@ struct PlayerInput
 	{
 		isRunning = false;
 
-
 		vel = { 0.f, 0.f };
 		for (const auto& controller : controllers)
 		{
 			if (controller->is(Buttons::RUN, Action::HELD)) isRunning = true;
 
-			if (controller->is(Buttons::SWITCH_NEXT, Action::PRESSED)) {
-                selectedWeapon++;
-                weaponSelectLerp->time = 0.0f;
-                weaponSelectLerp->started = true;
-                moveWeaponLeft = false;
-                weaponSelectVisibleLerp->time = 0.0f;
-                weaponSelectVisibleLerp->started = false;
-
+			if (controller->is(Buttons::ACCEPT, Action::PRESSED) ||
+                controller->is(Buttons::UP, Action::PRESSED) ||
+                controller->is(Buttons::SHOOT, Action::PRESSED)) {
+                TraceLog(LOG_INFO, "Jump button pressed");
+                if (!isJumping) {
+                    isJumping = true;
+                    startJumping = true;
+                }
             }
-			if (controller->is(Buttons::SWITCH_PREV, Action::PRESSED)) {
-                selectedWeapon--;
-                weaponSelectLerp->time = 0.0f;
-                weaponSelectLerp->started = true;
-                moveWeaponLeft = true;
-                weaponSelectVisibleLerp->time = 0.0f;
-                weaponSelectVisibleLerp->started = false;
-            }
-
-			if (selectedWeapon < 1) selectedWeapon = 4;
-			if (selectedWeapon > 4) selectedWeapon = 1;
 
 			switch (controller->getType())
 			{
@@ -82,12 +62,13 @@ struct PlayerInput
 				break;
 			case InputType::GAMEPAD:
 				vel.x += GetGamepadAxisMovement(controller->getGamepadID(), GAMEPAD_AXIS_LEFT_X);
-				vel.y += GetGamepadAxisMovement(controller->getGamepadID(), GAMEPAD_AXIS_LEFT_Y);
+				//vel.y += GetGamepadAxisMovement(controller->getGamepadID(), GAMEPAD_AXIS_LEFT_Y);
 				break;
 			}
 			if (vel.mag2() > 0)
 			{
-				vel = vel.norm();
+				//vel = vel.norm() * 128.f;
+                vel *= 0.5f;
 				if (entity->has<Sprite>())
 				{
 					auto sprite = entity->get_mut<Sprite>();

@@ -26,5 +26,7 @@ struct Sprite
 
 	direction facing;
 
+    int spritesWidth;
+    int spritesHeight;
 	
 };

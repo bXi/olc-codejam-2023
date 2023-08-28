@@ -22,6 +22,7 @@ void GameState::setupControls() {
 
 void GameState::resetGame() {
     ECS::reset();
+    camTarget = {640.f, 380.f};
 
     lm.loadLevel("01");
     leveldata = lm.currentlevel;
@@ -36,7 +37,7 @@ void GameState::resetGame() {
     World::loadLevelPhysics(leveldata);
 
 
-//    CreatePlayerEntity(1, )
+    CreatePlayerEntity(1, {2.5f, 2.5f});
 
 
 
@@ -83,7 +84,6 @@ void GameState::load() {
     camera.rotation = 0.0f;
     camera.zoom = 1.0f;
 
-    camTarget = {640.f, 380.f};
 
     resetGame();
 
@@ -112,13 +112,31 @@ void GameState::draw() {
         playerClass->update();
 
         auto newSpeed = speed;
-        if (input->isRunning) newSpeed *= 1.2f;
+        if (input->isRunning) newSpeed *= 2.2f;
 
         newSpeed /= Configuration::slowMotionFactor;
 
-        rigidBody2d->RigidBody->SetLinearVelocity(input->vel * newSpeed);
+        auto currentVel = rigidBody2d->RigidBody->GetLinearVelocity();
 
-        camPos += rigidBody2d->RigidBody->GetPosition();
+        currentVel.x = input->vel.x * newSpeed;
+        rigidBody2d->RigidBody->SetLinearVelocity(currentVel);
+
+        //rigidBody2d->RigidBody->ApplyForceToCenter(input->vel * newSpeed, true);
+
+        if (input->startJumping) {
+            input->startJumping = false;
+#ifndef EMSCRIPTEN
+            float impulse = -1000.f;
+#else
+            float impulse = -363.f;
+
+#endif
+            rigidBody2d->RigidBody->ApplyForceToCenter(b2Vec2(0,impulse), true);
+            //rigidBody2d->RigidBody->ApplyLinearImpulse(b2Vec2(0,impulse), rigidBody2d->RigidBody->GetWorldCenter(), true);
+
+        }
+
+        camPos += (vf2d)rigidBody2d->RigidBody->GetPosition() * 64.f;
     });
 
 
@@ -130,8 +148,8 @@ void GameState::draw() {
     update();
 
 
-//    camTarget = {(camPos.x / static_cast<float>(playerFilter.count())) * static_cast<float>(Configuration::tileWidth),
-//                      (camPos.y / static_cast<float>(playerFilter.count())) * static_cast<float>(Configuration::tileHeight)};
+    camTarget = {(camPos.x / static_cast<float>(playerFilter.count())),
+                 (camPos.y / static_cast<float>(playerFilter.count()))};
 
 
 
@@ -139,11 +157,7 @@ void GameState::draw() {
 
 
     camera.target = camTarget.clamp(cameraTargetArea);
-
-    const auto aiFilter = ECS::getWorld().filter<AIController>();
-    aiFilter.each([&](flecs::entity entity, AIController aicontroller) {
-        aicontroller.seek();
-    });
+    //camera.target = camTarget;
 
 
     accumulator += GetFrameTime();
@@ -187,18 +201,10 @@ void GameState::draw() {
         }
     }
 
-
-    playerFilter.each([&](flecs::entity entity, PlayerIndex index) {
-        auto *input = entity.get_mut<PlayerInput>();
-        auto *playerClass = entity.get_mut<PlayerClass>();
-
-        if (input->shooting) {
-            playerClass->shoot(entity);
-        }
-    });
     drawEntities();
 
-    World::draw();
+    if (renderPhysics)
+        World::draw();
 
 
     EndMode2D();
@@ -239,22 +245,6 @@ void GameState::drawEntities() {
 
     }
 
-    std::vector<flecs::entity> entitiesHealth;
-
-//    const auto healthFilter = ECS::getWorld().filter<Health>();
-//    healthFilter.each([&](flecs::entity entity, Health health) {
-//
-//        health.draw(entity);
-//
-//        if (health.currentHealth <= 0.0f) {
-//            entitiesHealth.push_back(entity);
-//
-//        }
-//    });
-
-    for (auto entity: entitiesHealth) {
-        entity.set<DeleteMe>({});
-    }
 
 }
 
@@ -269,6 +259,16 @@ void GameState::handleInput() {
     if (IsKeyPressed(KEY_UP)) camTarget.y -=  (IsKeyDown(KEY_LEFT_SHIFT)) ? 1.f : 100.f;
     if (IsKeyPressed(KEY_DOWN)) camTarget.y +=  (IsKeyDown(KEY_LEFT_SHIFT)) ? 1.f : 100.f;
 
+    if (IsKeyDown(KEY_K)) {
+        const auto playerFilter = ECS::getWorld().filter<PlayerIndex>();
+        playerFilter.each([&](flecs::entity entity, PlayerIndex index) {
+        auto *input = entity.get_mut<PlayerInput>();
+        if (!input->isJumping) {
+            input->startJumping = true;
+            input->isJumping = true;
+        }
+    });
+    }
 
 
     Log::addLine("CamTarget:", camTarget.str());
@@ -281,6 +281,7 @@ void GameState::drawUI() {
         vf2d mousePos = GetScreenToWorld2D(GetMousePosition(), camera);
         mousePos /= (Configuration::tileWidth / World::getLevelScale());
         Log::addLine("Mousepos", mousePos.str());
+        if (IsKeyPressed(KEY_P)) renderPhysics = !renderPhysics;
         UI::drawDebugInfo();
     }
     Log::resetLog();

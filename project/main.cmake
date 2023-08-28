@@ -64,7 +64,7 @@ if (CMAKE_BUILD_TYPE STREQUAL Release)
         )
 
 
-        set_target_properties("main" PROPERTIES LINK_FLAGS "-s FORCE_FILESYSTEM=1 -s TOTAL_MEMORY=67108864 -sSTACK_SIZE=5MB -s ASYNCIFY -s DEMANGLE_SUPPORT=1 -s EXPORTED_FUNCTIONS=\"[_malloc,_main]\" --shell-file ${CMAKE_SOURCE_DIR}/project/shell.html --preload-file ${CMAKE_SOURCE_DIR}/project/assets/@assets --bind")
+        set_target_properties("main" PROPERTIES LINK_FLAGS "-s FORCE_FILESYSTEM=1 -s TOTAL_MEMORY=128MB -sSTACK_SIZE=5MB -s ASYNCIFY -s DEMANGLE_SUPPORT=1 -s EXPORTED_FUNCTIONS=\"[_malloc,_main]\" --shell-file ${CMAKE_SOURCE_DIR}/project/shell.html --preload-file ${CMAKE_SOURCE_DIR}/project/assets/@assets --bind")
 
         set(CMAKE_EXECUTABLE_SUFFIX ".html") # This line is used to set your executable to build with the emscripten html template so taht you can directly open it.
 

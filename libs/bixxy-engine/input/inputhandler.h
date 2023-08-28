@@ -18,10 +18,10 @@ private:
     int gamepadID;
 
     std::map<Buttons, std::list<int>> mappingKB = {
-        { Buttons::LEFT,  { KEY_A, KEY_LEFT}},
-        { Buttons::RIGHT, { KEY_D, KEY_RIGHT}},
-        { Buttons::UP,    { KEY_W, KEY_UP}},
-        { Buttons::DOWN,  { KEY_S, KEY_DOWN}},
+        { Buttons::LEFT,  { KEY_A }}, //, KEY_LEFT}},
+        { Buttons::RIGHT, { KEY_D }}, //, KEY_RIGHT}},
+        { Buttons::UP,    { KEY_W }}, //, KEY_UP}},
+        { Buttons::DOWN,  { KEY_S }}, //, KEY_DOWN}},
 
         { Buttons::ACCEPT, { KEY_SPACE, KEY_ENTER, KEY_KP_ENTER }},
         { Buttons::BACK,   { KEY_ESCAPE, KEY_BACKSPACE }},
@@ -36,7 +36,7 @@ private:
     };
 
     std::map<Buttons, std::list<int>> mappingGP = {
-        { Buttons::ACCEPT, { KEY_SPACE, KEY_ENTER, GAMEPAD_BUTTON_RIGHT_FACE_DOWN }},
+        { Buttons::ACCEPT, { GAMEPAD_BUTTON_RIGHT_FACE_DOWN }},
         { Buttons::BACK,   { GAMEPAD_BUTTON_RIGHT_FACE_RIGHT }},
 
         { Buttons::LEFT,  { GAMEPAD_BUTTON_LEFT_FACE_LEFT }},

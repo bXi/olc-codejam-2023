@@ -30,6 +30,9 @@ public:
 class PhysicsTriangle : public PhysicsObject
 {
 public:
+
+    Vector2 Size = { 0,0 };
+    Vector2 HalfSize = { 0,0 };
     void draw() override {
 
     };

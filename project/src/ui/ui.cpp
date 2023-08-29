@@ -32,6 +32,12 @@ void UI::drawDebugInfo() {
                 TextFormat("X: %.2f Y: %.2f", rigidBody2D.RigidBody->GetPosition().x,
                            rigidBody2D.RigidBody->GetPosition().y)
         );
+
+        Log::addLine(
+                TextFormat("Player %d vel:", playerIndex.index),
+                TextFormat("X: %.2f Y: %.2f", rigidBody2D.RigidBody->GetLinearVelocity().x,
+                           rigidBody2D.RigidBody->GetLinearVelocity().y)
+        );
     });
 
     auto lines = Log::getLines();

@@ -97,11 +97,75 @@ void World::_loadLevelPhysics(LevelData ld)
 
                 fixtureDef.shape = &Box;
                 fixtureDef.density = 1.0f;
-                fixtureDef.friction = 0.3f;
+                fixtureDef.friction = 0.0f;
 
                 r->RigidBody->CreateFixture(&fixtureDef);
 
                 addObject(r);
+            } else if (shape->type == Shape::TRIANGLE) {
+
+
+
+
+
+                wTriangle* rect = (wTriangle*)shape;
+
+                PhysicsTriangle* t = new PhysicsTriangle();
+
+                t->ShapeColor = Color{41, 55, 230, 127};
+
+                t->Size.x = 1.0f;
+                t->Size.y = 1.0f;
+
+                t->HalfSize.x = (t->Size.x / 2);
+                t->HalfSize.y = (t->Size.y / 2);
+
+                b2BodyDef bodyDef;
+                bodyDef.type = b2_staticBody;
+                bodyDef.position.Set(
+                        (offSetX - 0.5f),
+                        (offSetY - 0.5f)
+                );
+                bodyDef.angle = 0.0f;
+                bodyDef.userData.pointer = 0;
+                t->RigidBody = World::createBody(&bodyDef);
+
+
+
+                b2PolygonShape dynamicPolygon;
+                b2Vec2 vertices[3];
+                if (tileId - 1 == 19) {
+                    vertices[0].Set(0.f, 1.f);
+                    vertices[1].Set(1.f, 1.f);
+                    vertices[2].Set(1.f, 0.f);
+                } else {
+                    vertices[0].Set(0.f, 0.f);
+                    vertices[1].Set(0.f, 1.f);
+                    vertices[2].Set(1.f, 1.f);
+                }
+                dynamicPolygon.Set(vertices, 3);
+
+
+
+
+
+
+
+
+                b2FixtureDef fixtureDef;
+
+                fixtureDef.shape = &dynamicPolygon;
+                fixtureDef.density = 1.0f;
+                fixtureDef.friction = 0.0f;
+
+                t->RigidBody->CreateFixture(&fixtureDef);
+
+                addObject(t);
+
+
+
+
+
             }
 
 
@@ -153,6 +217,24 @@ void World::BeginContact(b2Contact* contact)
     b2Body* bodyA = fixtureA->GetBody();
     b2Body* bodyB = fixtureB->GetBody();
 
+
+    b2Shape* shapeA = fixtureA->GetShape();
+    b2Shape* shapeB = fixtureB->GetShape();
+
+    // Calculate the size of bodyA
+    b2AABB aabbA;
+    shapeA->ComputeAABB(&aabbA, bodyA->GetTransform(), 0); // 0 is the child index
+    vf2d sizeA = (vf2d)aabbA.GetExtents() * 2.0f;
+
+    // Calculate the size of bodyB
+    b2AABB aabbB;
+    shapeB->ComputeAABB(&aabbB, bodyB->GetTransform(), 0); // 0 is the child index
+    vf2d sizeB = (vf2d)aabbB.GetExtents() * 2.0f;
+
+    bool bodyAIsAboveBodyB = bodyA->GetPosition().y + sizeA.y > bodyB->GetPosition().y;
+    bool bodyBIsAboveBodyA = bodyB->GetPosition().y + sizeB.y > bodyA->GetPosition().y;
+
+
     // Get the user data of the bodies (assuming they store pointers)
     UserData* userDataA = reinterpret_cast<UserData*>(bodyA->GetUserData().pointer);
     UserData* userDataB = reinterpret_cast<UserData*>(bodyB->GetUserData().pointer);
@@ -161,16 +243,20 @@ void World::BeginContact(b2Contact* contact)
     if (userDataA && !userDataB) {
         flecs::entity entityA = ECS::getWorld().entity(userDataA->entity_id);
 
-        if (entityA.has<PlayerInput>()) {
+
+
+        if (entityA.has<PlayerInput>() && bodyBIsAboveBodyA) {
+
             entityA.get_mut<PlayerInput>()->isJumping = false;
         }
+
 
 
     }
     else if (!userDataA && userDataB) {
         flecs::entity entityB = ECS::getWorld().entity(userDataB->entity_id);
 
-        if (entityB.has<PlayerInput>()) {
+        if (entityB.has<PlayerInput>() && bodyAIsAboveBodyB) {
             entityB.get_mut<PlayerInput>()->isJumping = false;
         }
 

@@ -64,6 +64,7 @@ private:
     Texture2D tilemap;
     Texture2D bg[3];
 
+    LerpAnimator* jumpTimer;
 
     //debug
     bool renderPhysics = false;

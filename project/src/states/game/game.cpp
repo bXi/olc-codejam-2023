@@ -31,7 +31,7 @@ void GameState::resetGame() {
         640.f,
         180.f,
         ((leveldata.width * Configuration::tileWidth) / 2.f) - (640.f * 2.f),
-        200.f,
+        440.f,
     };
 
     World::loadLevelPhysics(leveldata);
@@ -84,7 +84,8 @@ void GameState::load() {
     camera.rotation = 0.0f;
     camera.zoom = 1.0f;
 
-
+    jumpTimer = Lerp::getLerp("jumpLerp", 0.0f, 1.0f, .666f);
+    jumpTimer->started = true;
     resetGame();
 
 
@@ -112,7 +113,7 @@ void GameState::draw() {
         playerClass->update();
 
         auto newSpeed = speed;
-        if (input->isRunning) newSpeed *= 2.2f;
+        //if (input->isRunning) newSpeed *= 2.2f;
 
         newSpeed /= Configuration::slowMotionFactor;
 
@@ -125,10 +126,11 @@ void GameState::draw() {
 
         if (input->startJumping) {
             input->startJumping = false;
+            float baseImpulse = 1200.f;
 #ifndef EMSCRIPTEN
-            float impulse = -1000.f;
+            float impulse = -baseImpulse;
 #else
-            float impulse = -363.f;
+            float impulse = -(baseImpulse*(60.f/165.f));
 
 #endif
             rigidBody2d->RigidBody->ApplyForceToCenter(b2Vec2(0,impulse), true);
@@ -144,7 +146,6 @@ void GameState::draw() {
                              (camPos.y / static_cast<float>(playerFilter.count())) // * static_cast<float>(Configuration::tileHeight)
     };
 
-    handleInput();
     update();
 
 
@@ -210,6 +211,7 @@ void GameState::draw() {
     EndMode2D();
 
     drawUI();
+    handleInput();
 
     const auto deleteFilter = ECS::getWorld().filter<DeleteMe>();
     std::vector<flecs::entity> entitiesToDelete;
@@ -259,13 +261,25 @@ void GameState::handleInput() {
     if (IsKeyPressed(KEY_UP)) camTarget.y -=  (IsKeyDown(KEY_LEFT_SHIFT)) ? 1.f : 100.f;
     if (IsKeyPressed(KEY_DOWN)) camTarget.y +=  (IsKeyDown(KEY_LEFT_SHIFT)) ? 1.f : 100.f;
 
+    //DrawRectangle(30, 30, 200, 40, WHITE);
+    //DrawRectangle(31, 31, 198, 38, BLACK);
+    //int blaWidth = (int)(jumpTimer->getValue() * 198.f);
+    //DrawRectangle(31, 31, blaWidth, 38, RED);
+
+
     if (IsKeyDown(KEY_K)) {
         const auto playerFilter = ECS::getWorld().filter<PlayerIndex>();
         playerFilter.each([&](flecs::entity entity, PlayerIndex index) {
         auto *input = entity.get_mut<PlayerInput>();
+
+
         if (!input->isJumping) {
-            input->startJumping = true;
-            input->isJumping = true;
+            if (jumpTimer->isFinished()) {
+                input->startJumping = true;
+                input->isJumping = true;
+                jumpTimer->time = 0.0f;
+                jumpTimer->started = true;
+            }
         }
     });
     }

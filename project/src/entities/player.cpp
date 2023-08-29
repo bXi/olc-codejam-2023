@@ -29,7 +29,7 @@ void CreatePlayerEntity(int index, vf2d pos) {
 	b2Body* RigidBody = nullptr;
 
 	b2CircleShape CircleShape;
-	CircleShape.m_radius = 0.5f;
+	CircleShape.m_radius = 0.48f;
 
 	auto userData = std::make_unique<UserData>();
 	userData->entity_id = entity.id();
@@ -46,7 +46,7 @@ void CreatePlayerEntity(int index, vf2d pos) {
 	fixtureDef.shape = &CircleShape;
 
 	fixtureDef.density = 1.f;
-	fixtureDef.friction = 0.6f;
+	fixtureDef.friction = 0.0f;
 	RigidBody->CreateFixture(&fixtureDef);
 
 
